@@ -6,7 +6,10 @@ import {
 
 export default function Prediction() {
   const [isPredicting, setIsPredicting] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState({
+    value: '22.80',
+    model: 'Linear Regression'
+  });
 
   const [formData, setFormData] = useState({
     mealsServed: 500,

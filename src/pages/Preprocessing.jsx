@@ -20,7 +20,7 @@ const STEPS = [
 export default function Preprocessing({ dataset }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
-  const [isComplete, setIsComplete] = useState(false);
+  const [isComplete, setIsComplete] = useState(true);
   
   const handleProcess = () => {
     setIsProcessing(true);
@@ -154,6 +154,15 @@ export default function Preprocessing({ dataset }) {
                 <p className="text-xs text-slate-500 font-medium mb-1">Outliers Removed</p>
                 <p className="text-xl font-bold text-slate-800">12</p>
               </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <button 
+                onClick={handleProcess}
+                className="btn-primary text-sm px-6 py-2.5 flex items-center shadow-md shadow-primary/20"
+              >
+                <DatabaseZap className="w-4 h-4 mr-2" /> Re-run Preprocessing Pipeline
+              </button>
             </div>
           </div>
         )}

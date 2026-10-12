@@ -3,7 +3,7 @@ import { PieChart, ListFilter, Play, Info, AlertTriangle, ShieldCheck, CheckCirc
 
 export default function Classification() {
   const [isClassifying, setIsClassifying] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState('MEDIUM');
   const [model, setModel] = useState('KNN');
 
   const models = [

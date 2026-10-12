@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Network, Search, Filter, Info, Users, Utensils } from 'lucide-react';
 import { 
-  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ZAxis
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
 export default function Clustering() {
   const [isDiscovering, setIsDiscovering] = useState(false);
-  const [result, setResult] = useState(false);
+  const [result, setResult] = useState(true);
   
   const [config, setConfig] = useState({
     algorithm: 'K-Means',
@@ -24,29 +24,33 @@ export default function Clustering() {
     }, 1500);
   };
 
+  const generateClusterPoints = (numClusters) => {
+    const data = [];
+    const centers = Array.from({length: numClusters}).map((_, i) => ({
+      x: 220 + (i * 200),
+      y: 12 + (i * 11)
+    }));
+
+    for (let i = 0; i < 240; i++) {
+      const clusterId = i % numClusters;
+      const center = centers[clusterId];
+      data.push({
+        x: Math.max(50, Math.round(center.x + (Math.sin(i * 1.7) * 75) + (Math.random() * 30 - 15))),
+        y: Math.max(2, parseFloat((center.y + (Math.cos(i * 1.1) * 5) + (Math.random() * 3 - 1.5)).toFixed(1))),
+        cluster: clusterId,
+        z: 1
+      });
+    }
+    return data;
+  };
+
   // Generate cluster data based on num clusters
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState(() => generateClusterPoints(3));
   const colors = ['#0f766e', '#065f46', '#10b981', '#34d399', '#6ee7b7'];
   
   useEffect(() => {
     if (result) {
-      const data = [];
-      const centers = Array.from({length: config.clusters}).map((_, i) => ({
-        x: 200 + Math.random() * 600,
-        y: 10 + Math.random() * 40
-      }));
-
-      for (let i = 0; i < 300; i++) {
-        const clusterId = i % config.clusters;
-        const center = centers[clusterId];
-        data.push({
-          x: Math.max(0, center.x + (Math.random() * 200 - 100)),
-          y: Math.max(0, center.y + (Math.random() * 15 - 7.5)),
-          cluster: clusterId,
-          z: 1
-        });
-      }
-      setChartData(data);
+      setChartData(generateClusterPoints(config.clusters));
     }
   }, [result, config.clusters]);
 
@@ -133,13 +137,13 @@ export default function Clustering() {
             
             <div className="flex-1 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-center p-4">
               {result ? (
-                <div className="w-full h-full min-h-[300px] animate-in zoom-in-95 duration-500">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="w-full h-[320px] animate-in zoom-in-95 duration-500">
+                  <ResponsiveContainer width="100%" height={320}>
                     <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis type="number" dataKey="x" name="Meals Served" axisLine={false} tickLine={false} tick={{fill: '#94a3b8'}} />
                       <YAxis type="number" dataKey="y" name="Waste (kg)" axisLine={false} tickLine={false} tick={{fill: '#94a3b8'}} />
-                      <ZAxis type="number" dataKey="z" range={[60, 60]} />
+                      <Legend verticalAlign="top" height={36} iconType="circle" />
                       <Tooltip 
                         cursor={{strokeDasharray: '3 3'}}
                         content={({ active, payload }) => {
@@ -157,11 +161,15 @@ export default function Clustering() {
                           return null;
                         }}
                       />
-                      <Scatter name="Clusters" data={chartData}>
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={colors[entry.cluster]} opacity={0.7} />
-                        ))}
-                      </Scatter>
+                      {Array.from({ length: config.clusters }).map((_, cIdx) => (
+                        <Scatter 
+                          key={cIdx} 
+                          name={`Cluster ${cIdx + 1}`} 
+                          data={chartData.filter(d => d.cluster === cIdx)} 
+                          fill={colors[cIdx % colors.length]} 
+                          isAnimationActive={false}
+                        />
+                      ))}
                     </ScatterChart>
                   </ResponsiveContainer>
                 </div>
